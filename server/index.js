@@ -18,16 +18,19 @@ const app = express();
 app.set('trust proxy', 1);
 
 // Middleware
-const allowedOrigins = [
+// Allow configuring allowed origins via `ALLOWED_ORIGINS` env var (comma-separated).
+const defaultOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
-  'https://studenthub-live.vercel.app', // Example prod URL
-  'https://studenthub-live.netlify.app' // Example prod URL
+  'https://studenthub-live.vercel.app',
+  'https://studenthub-live.netlify.app'
 ];
+const envOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',').map(s => s.trim()).filter(Boolean) : [];
+const allowedOrigins = Array.from(new Set([...defaultOrigins, ...envOrigins]));
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin) || (origin && origin.includes('vercel.app'))) {
+    if (!origin || allowedOrigins.includes(origin) || (origin && origin.includes('vercel.app')) || (origin && origin.includes('github.io'))) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
