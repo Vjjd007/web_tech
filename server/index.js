@@ -22,15 +22,17 @@ app.set('trust proxy', 1);
 const defaultOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
-  'https://studenthub-live.vercel.app',
-  'https://studenthub-live.netlify.app'
+  'https://studenthub-live.vercel.app', // Example prod URL
+  'https://studenthub-live.netlify.app' // Example prod URL
 ];
-const envOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',').map(s => s.trim()).filter(Boolean) : [];
-const allowedOrigins = Array.from(new Set([...defaultOrigins, ...envOrigins]));
+
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim()).filter(Boolean)
+  : defaultOrigins;
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin) || (origin && origin.includes('vercel.app')) || (origin && origin.includes('github.io'))) {
+    if (!origin || allowedOrigins.includes(origin) || (origin && origin.includes('vercel.app'))) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
